@@ -217,14 +217,16 @@ var executeRollup = function () {
         copy({
             targets: [
                 { src: 'node_modules/vue/dist/vue.runtime.min.js', dest: 'lib/pkg' },
-                { src: 'node_modules/vuex/dist/vuex.min.js', dest: 'lib/pkg' }
+                { src: 'node_modules/vuex/dist/vuex.min.js', dest: 'lib/pkg' },
+                { src: 'node_modules/vuetify/dist/vuetify.min.js', dest: 'lib/pkg' },
+                { src: 'node_modules/vuetify/dist/vuetify.min.css', dest: 'lib/css' }
             ]
         })
     ];
     if (!DEBUG) plugins.push(terser());
 
     var input = {
-        external: ['vue','vueex'],
+        external: ['vue','vueex','vuetify'],
         input: {
             'vault/vault': './vault/vault.ts',
             'background/background': './background/background.ts',
@@ -253,7 +255,8 @@ var executeRollup = function () {
         format: "es",
         sourcemap: !!DEBUG,
         globals: { // maps external modules above to specific global vars
-            vue: "Vue"
+            vue: "Vue",
+            vuetify: "Vuetify"
         },
         chunkFileNames: "common/[name].js"
     };

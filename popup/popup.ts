@@ -1,4 +1,5 @@
 import Vue from "vue";
+import Vuetify from "vuetify";
 import App from "./App.vue";
 import store from "../store";
 import { KeeLog } from "../common/Logger";
@@ -11,6 +12,7 @@ import { SyncContent } from "../store/syncContent";
 import { MutationPayload } from "vuex";
 
 Vue.use(i18n);
+Vue.use(Vuetify);
 
 Vue.prototype.$browser = browser;
 

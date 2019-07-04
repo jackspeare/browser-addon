@@ -1,6 +1,5 @@
 <template>
-  <li 
-  class="login-item" 
+    <v-list-tile class="login-item" 
   :style="inlineStyle" 
   :title="$i18n('savePasswordLogin_tip', [usernameDisplayValue, entry.url])" 
   :tabindex="tabindex"
@@ -13,8 +12,9 @@
   @mouseenter="onMouseEnter"
   @mouseleave="onMouseLeave"
   @contextmenu="onContextMenu">
-    {{$i18n('matchedLogin_label', [usernameDisplayValue, entry.title])}}
-  </li>
+        <v-list-tile-action><v-icon></v-icon></v-list-tile-action>
+        <v-list-tile-content>{{$i18n('matchedLogin_label', [usernameDisplayValue, entry.title])}}</v-list-tile-content>
+    </v-list-tile>
 </template>
 
 

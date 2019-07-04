@@ -2,9 +2,9 @@
   <div id="searchPanel">
     <div><input type="text" :placeholder="$i18n('Search_label')" id="searchBox" name="cc5704978dc0411591addc66d25c325b" class="form-control" :value="currentSearchTerm" :title="$i18n('Search_tip')" @input="onSearchInput" @keydown="searchBoxKeyboardNavHandler" autofocus/></div>
     <div id="searchResults">
-      <ul v-show="searchResults && searchResults.length > 0" id="searchResults-Container">
+      <v-list v-show="searchResults && searchResults.length > 0" id="searchResults-Container">
         <LoginEntry v-for="(entry, index) of searchResults" :key="entry.uniqueID" :entry="entry" :index="index"></LoginEntry>
-      </ul>
+      </v-list>
     </div>
   </div>
 </template>

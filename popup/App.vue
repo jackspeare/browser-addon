@@ -1,25 +1,41 @@
 <template>
-  <div id="main">
-    <div class="panel-body">
-        <div v-if="showNotifications" id="notifications">
-            <Notification v-for="n of notifications" :notification="n" :key="n.id"></Notification>
+    <v-app>
+        <div id="main">
+            <div class="panel-body">
+
+
+        <v-container class="my-5">
+            <v-layout row wrap>
+                <v-flex xs12 md6>
+                <v-btn color="green" block><v-icon left>email</v-icon><span>Test button</span></v-btn>
+                </v-flex>
+                <v-flex xs12 md6>
+                <v-btn flat color="green" block>Test button 2</v-btn>
+                </v-flex>
+            </v-layout>
+        </v-container>
+
+
+                <div v-if="showNotifications" id="notifications">
+                    <Notification v-for="n of notifications" :notification="n" :key="n.id"></Notification>
+                </div>
+                <SearchPanel v-show="showSearchPanel"></SearchPanel>
+                <div class="list-group" id="menu-items">
+                    <a v-show="showMatchedLogins" href="#" id="showMatchedLogins" class="list-group-item" @click="showMatchedLoginsPanel">{{ $i18n('matched_logins_label') }}</a>
+                    <a v-show="showSaveLatestLogin" href="#" id="saveLatestLogin" class="list-group-item" @click="saveLatestLogin">{{ $i18n('saveLatestLogin') }}</a>
+                    <a v-show="showGeneratePasswordLink" href="#" id="generatePasswordLink" class="list-group-item" @click="generatePassword">{{ $i18n('Menu_Button_copyNewPasswordToClipboard_label') }}</a>
+                    <a href="#" id="helpLink" class="list-group-item" @click="showHelp">{{ $i18n('Help_Centre_Button_label') }}</a>
+                    <a href="#" id="optionsLink" class="list-group-item" @click="showOptions">{{ $i18n('Menu_Button_options_label') }}</a>
+                    <div id="debug" class="list-group-item hidden"></div>
+                </div>
+            </div>
+            <div class="panel-heading" id="connectionStatus">{{connectionStatus}}</div>
+            <div id="passwordOpenButtons">
+                <a href="#" class="password-open-item" id="password-open-kee-vault" @click="openKeeVault">{{ $i18n('Menu_Button_open_kee_vault_label') }}</a>
+                <a v-show="showOpenKeePassButton" href="#" class="password-open-item" id="password-open-keepass" @click="openKeePass">{{ $i18n('Menu_Button_open_keepass_label') }}</a>
+            </div>
         </div>
-        <SearchPanel v-show="showSearchPanel"></SearchPanel>
-        <div class="list-group" id="menu-items">
-            <a v-show="showMatchedLogins" href="#" id="showMatchedLogins" class="list-group-item" @click="showMatchedLoginsPanel">{{ $i18n('matched_logins_label') }}</a>
-            <a v-show="showSaveLatestLogin" href="#" id="saveLatestLogin" class="list-group-item" @click="saveLatestLogin">{{ $i18n('saveLatestLogin') }}</a>
-            <a v-show="showGeneratePasswordLink" href="#" id="generatePasswordLink" class="list-group-item" @click="generatePassword">{{ $i18n('Menu_Button_copyNewPasswordToClipboard_label') }}</a>
-            <a href="#" id="helpLink" class="list-group-item" @click="showHelp">{{ $i18n('Help_Centre_Button_label') }}</a>
-            <a href="#" id="optionsLink" class="list-group-item" @click="showOptions">{{ $i18n('Menu_Button_options_label') }}</a>
-            <div id="debug" class="list-group-item hidden"></div>
-        </div>
-    </div>
-    <div class="panel-heading" id="connectionStatus">{{connectionStatus}}</div>
-    <div id="passwordOpenButtons">
-        <a href="#" class="password-open-item" id="password-open-kee-vault" @click="openKeeVault">{{ $i18n('Menu_Button_open_kee_vault_label') }}</a>
-        <a v-show="showOpenKeePassButton" href="#" class="password-open-item" id="password-open-keepass" @click="openKeePass">{{ $i18n('Menu_Button_open_keepass_label') }}</a>
-    </div>
-  </div>
+    </v-app>
 </template>
 
 <script lang="ts">

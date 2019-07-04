@@ -15,13 +15,13 @@
 <script lang="ts">
 import { Component } from "vue";
 import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
-import { names as actionNames } from '../store/action-names';
-import { SessionType } from '../common/kfDataModel';
-import { KeeState } from '../store/KeeState';
-import { ButtonAction } from '../common/Button';
-import { configManager } from '../common/ConfigManager';
-import { AddonMessage } from '../common/AddonMessage';
-import { Port } from '../common/port';
+import { names as actionNames } from '../../store/action-names';
+import { SessionType } from '../../common/kfDataModel';
+import { KeeState } from '../../store/KeeState';
+import { ButtonAction } from '../../common/Button';
+import { configManager } from '../../common/ConfigManager';
+import { AddonMessage } from '../../common/AddonMessage';
+import { Port } from '../../common/port';
 
 export default {
   props: ['notification'],

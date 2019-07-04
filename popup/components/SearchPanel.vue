@@ -12,16 +12,16 @@
 <script lang="ts">
 import { Component } from "vue";
 import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
-import { names as actionNames } from '../store/action-names';
-import { SessionType } from '../common/kfDataModel';
-import { KeeState } from '../store/KeeState';
-import { ButtonAction } from '../common/Button';
-import { configManager } from '../common/ConfigManager';
-import { AddonMessage } from '../common/AddonMessage';
-import { Port } from '../common/port';
-import { Search, SearchResult } from '../common/search';
+import { names as actionNames } from '../../store/action-names';
+import { SessionType } from '../../common/kfDataModel';
+import { KeeState } from '../../store/KeeState';
+import { ButtonAction } from '../../common/Button';
+import { configManager } from '../../common/ConfigManager';
+import { AddonMessage } from '../../common/AddonMessage';
+import { Port } from '../../common/port';
+import { Search, SearchResult } from '../../common/search';
 import LoginEntry from "./LoginEntry.vue";
-import { mTypes } from '../store';
+import { mTypes } from '../../store';
 
 export default {
   created(this: any){

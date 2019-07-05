@@ -62,6 +62,14 @@ function startup () {
                     store,
                     render: h => h(App)
                 });
+
+                // This maybe could be moved to onMounted once all vuex state is changed before this popup is opened.
+                setTimeout(() => {
+                    window.focus();
+                    const sb = $("#searchBox");
+                    if (sb) sb.focus();
+                    window.scrollTo(0, 0);
+                }, 50);
             });
         }
         if (m.mutation) {
@@ -72,13 +80,6 @@ function startup () {
              store.dispatch("updateContextMenuResult", convertSingleLoginEntryResult(m.findMatchesResult) );
         }
 
-        // This maybe could be moved to onMounted once all vuex state is changed before this popup is opened.
-        setTimeout(() => {
-            window.focus();
-            const sb = $("#searchBox");
-            if (sb) sb.focus();
-            window.scrollTo(0, 0);
-        }, 50);
     });
 
     KeeLog.info("popup ready");

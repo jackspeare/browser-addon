@@ -1,50 +1,78 @@
 <template>
   <v-hover>
-    <v-card slot-scope="{ hover }" :elevation="`${hover ? 12 : 3}`" class="my-2">
-      <v-layout row justify-center align-center :style="`${hover ? 'cursor: pointer' : ''}`">
+    <v-card
+      :tabindex="`${tabindex}`"
+      slot-scope="{ hover }"
+      :elevation="`${hover ? 12 : 3}`"
+      class="my-2"
+      @focusin="focusin"
+      @focusout="focusout"
+      ref="card"
+      @keyup.context-menu.stop.prevent="showFullDetails"
+      @keyup.arrow-down.stop.prevent="nextInList"
+      @keyup.arrow-up.stop.prevent="prevInList"
+      @keyup.arrow-right.stop.prevent="showFullDetails"
+      @keyup.arrow-left.stop.prevent="hideFullDetails"
+      @keyup.escape.stop.prevent="exitList"
+      @keyup.enter.self.stop.prevent="loadInSameTab"
+      @keyup.enter.ctrl.self.stop.prevent="loadInNewTab"
+    >
+      <v-layout
+        row
+        justify-center
+        align-center
+        :style="`${hover ? 'cursor: pointer' : ''}`"
+        @click.left.exact="loadInSameTab"
+        @click.middle.exact="loadInNewTab"
+        @click.left.ctrl="loadInNewTab"
+        @click.middle.ctrl="loadInSameTab"
+        @click.right.stop.prevent="showFullDetails"
+      >
         <v-flex class="text-truncate">
           <v-hover>
-            <v-card-title class="pl-5 ml-2 py-3 subheading" :style="titleStyle">
-              <span class="text-truncate">{{entry.title}}</span>
-              <v-flex
-                :style="`${show ? 'visibility:hidden' : ''}`"
-                class="text-truncate caption pr-2 pt-1 py-1"
-              >{{entry.usernameValue}}</v-flex>
+            <v-card-title :class="`pl-5 ml-2 py-0 mt-3 ${expanded ? 'mb-0' : 'mb-3'} subheading`" :style="titleStyle">
+              <v-layout column>
+                <v-flex class="text-truncate">{{entry.title}}</v-flex>
+                <v-flex
+                    :style="`${expanded ? 'visibility:hidden' : ''}`"
+                    class="text-truncate caption pr-2 pt-1 py-1"
+                >{{usernameDisplayValue}}</v-flex>
+              </v-layout>
             </v-card-title>
           </v-hover>
         </v-flex>
-        <v-flex class="my-0" v-if="hover">
-          <v-btn icon @click="show = !show">
-            <v-icon>{{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
+        <v-flex shrink class="my-0" v-if="hover || focussed">
+          <v-btn icon @click.stop.prevent="toggleFullDetails">
+            <v-icon>{{ expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
           </v-btn>
         </v-flex>
       </v-layout>
       <v-card-text class="py-0 text-truncate">
         <v-slide-y-transition>
-          <div v-show="show">
-            <Field v-for="f of entry.fields" :key="f.value" :field="f"/>
+          <div v-if="expanded && !!entry.fullDetails">
+            <!-- TODO: show a loading screen and also allow initial rendering to be expanded -->
+            <Field v-for="f of allFields" :key="f.value" :field="f"/>
             <!-- TODO new uuids for keys? -->
             <v-layout row justify-space-between align-center>
               <v-flex class="text-truncate">
-                <v-tooltip top :disabled="false">
-                  <!-- TODO: depend on length of caption - rough estimate but better than nothing -->
+                <v-tooltip top :disabled="!entryPathIsLong">
                   <v-layout row justify-left align-center slot="activator">
                     <v-icon small class="py-1 pl-0 pr-2">folder</v-icon>
-                    <span class="text-truncate caption py-1">{{entry.groupPath}}</span>
+                    <span class="text-truncate caption py-1">{{entryPath}}</span>
                   </v-layout>
-                  <span>{{entry.groupPath}}</span>
+                  <span>{{fullEntryPath}}</span>
                 </v-tooltip>
                 <v-tooltip top>
                   <v-layout row justify-left align-center slot="activator">
                     <v-icon small class="py-1 pl-0 pr-2">cloud</v-icon>
-                    <span class="text-truncate caption py-1">{{entry.domain}}</span>
+                    <span class="text-truncate caption py-1">{{entryDomain}}</span>
                   </v-layout>
-                  <span>{{entry.URL}}</span>
+                  <span>{{entry.url}}</span>
                 </v-tooltip>
               </v-flex>
 
               <v-flex shrink class="ma-2">
-                <v-btn fab small left>
+                <v-btn fab small left @click="editEntry">
                   <v-icon>edit</v-icon>
                 </v-btn>
               </v-flex>
@@ -58,16 +86,139 @@
 
 <script lang="ts">
 import Field from "./Field.vue";
+import { AddonMessage } from "../../common/AddonMessage";
+import { Port } from "../../common/port";
+import { mapActions } from 'vuex';
+import { names as actionNames } from '../../store/action-names';
+import { keeLoginInfo } from '../../common/kfDataModel';
+import { utils } from '../../common/utils';
+
 export default {
-  props: ["show", "entry"],
+  props: ["entry",'index'], //TODO: make index optional for when we're not part of a list
+
   computed: {
     titleStyle: function(this: any) {
       return (
-        "background-position:16px calc(50% - 1px); background-image: " +
-        this.entry.iconURI
+        "background-position:16px calc(50% - 1px); background-image:url(data:image/png;base64," +
+        this.entry.iconImageData +
+        ")"
       );
+    },
+    usernameDisplayValue: function(this: any) {
+      const e = this.entry;
+      return e && e.usernameValue
+        ? e.usernameValue
+        : "[" + $STR("noUsername_partial_tip") + "]";
+    },
+    tabindex: function(this: any) {
+      return this.index === 0 ? "0" : "-1";
+    },
+    allFields: function(this: any) {
+        const e = this.entry.fullDetails as keeLoginInfo;
+        return e.otherFields.concat(e.passwords);
+    },
+    entryDomain: function(this: any) {
+        let urlStr = this.entry.url;
+        if (!urlStr || urlStr.length < 4) return "<unknown>";
+        if (!urlStr.startsWith("https://") && !urlStr.startsWith("http://") && !urlStr.startsWith("file://"))
+        {
+            urlStr = "https://" + urlStr;
+        }
+        try {
+        const url = new URL(urlStr);
+        return utils.psl.getDomain(url.host);
+        } catch (e) {
+            console.warn("Error processing URL: " + e);
+            return "<error>"
+        }
+    },
+    entryPath: function(this: any) {
+        if (!this.entryPathIsLong) {
+            return this.fullEntryPath;
+        }
+        const e = this.entry.fullDetails as keeLoginInfo;
+        return "... > " + e.parentGroup.path;
+    },
+    entryPathIsLong: function(this: any) {
+        return this.fullEntryPath.length > 35;
+    },
+    fullEntryPath: function (this: any) {
+        const e = this.entry.fullDetails as keeLoginInfo;
+        return e.database.name + " > " + e.parentGroup.path;
     }
   },
-  components: { Field }
+  components: { Field },
+  methods: {
+    ...mapActions(actionNames),
+    toggleFullDetails(this: any) {
+      if (!this.expanded) {
+          this.showFullDetails();
+      } else {
+        this.hideFullDetails();
+      }
+    },
+    showFullDetails(this: any) {
+      if (!this.expanded) {
+          Port.postMessage({
+            findMatches: {
+            uuid: this.entry.uniqueID,
+            DBfilename: this.entry.dbFileName
+            }
+        } as AddonMessage);
+      }
+      this.expanded = true;
+    },
+    hideFullDetails(this: any) {
+      this.expanded = false;
+    },
+    editEntry(this: any) {
+      Port.postMessage({
+        loginEditor: {
+          uniqueID: this.entry.uniqueID,
+          DBfilename: this.entry.dbFileName
+        }
+      } as AddonMessage);
+    },
+    focusin: function(this: any, e) {
+      if (!(this.$refs.card as any).$el.contains(e.relatedTarget)) {
+        this.focussed = true;
+      }
+    },
+    focusout: function(this: any, e) {
+      if (!(this.$refs.card as any).$el.contains(e.relatedTarget)) {
+        this.focussed = false;
+      }
+    },
+    loadInSameTab(this: any) {
+        browser.tabs.update({url: this.entry.url});
+    },
+    loadInNewTab(this: any) {
+        browser.tabs.create({url: this.entry.url});
+    },
+    nextInList (this: any, event: Event) {
+        const target = event.target as HTMLLIElement;
+        if (target.nextElementSibling) {
+            (target.nextElementSibling as HTMLLIElement).focus();
+        }
+    },
+    prevInList (this: any, event: Event) {
+        const target = event.target as HTMLLIElement;
+        if (target.previousElementSibling) {
+            (target.previousElementSibling as HTMLLIElement).focus();
+        } else {
+            //TODO: generalise for more than just search result items
+            (document.getElementById("searchBox") as HTMLInputElement).focus();
+        }
+    },
+    exitList (this: any, event: Event) {
+        //TODO: generalise for more than just search result items
+        (document.getElementById("searchBox") as HTMLInputElement).focus();
+    }
+  },
+  data: () => ({
+    expanded: false,
+    focussed: false
+  }),
+  mixins: [Port.mixin]
 };
 </script>

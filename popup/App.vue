@@ -20,7 +20,9 @@
                 </div>
 
                  -->
-            <v-text-field solo placeholder="Search..." hide-details class="mb-3"></v-text-field>
+            
+
+<SearchPanel v-show="showSearchPanel"></SearchPanel>
 
             <Entry :show="true" :entry="entry"/>
             <Entry :show="false" :entry="entry"/>
@@ -82,8 +84,8 @@ import { mapState, mapActions, mapGetters, mapMutations } from 'vuex';
 import { names as actionNames } from '../store/action-names';
 import { SessionType } from '../common/kfDataModel';
 import { KeeState } from '../store/KeeState';
-import Notification from "./Notification.vue";
-import SearchPanel from "./SearchPanel.vue";
+import Notification from "./components/Notification.vue";
+import SearchPanel from "./components/SearchPanel.vue";
 import { Port } from '../common/port';
 import { Action } from '../common/Action';
 import { KeeLog } from '../common/Logger';

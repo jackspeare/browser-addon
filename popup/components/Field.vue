@@ -1,5 +1,5 @@
 <template>
-  <v-layout row justify-center align-center>
+  <v-layout row justify-center align-center v-if="useful">
     <v-flex class="text-truncate my-2 text-xs-right">
       <v-tooltip bottom>
         <span slot="activator" @click="toggleReveal">{{displayValue}}</span>
@@ -19,7 +19,10 @@
 </template>
 
 <script lang="ts">
+import { copyStringToClipboard } from '../copyStringToClipboard';
+
 const protectedText = "**********";
+
 export default {
   props: ["field"],
   data: () => ({
@@ -33,17 +36,23 @@ export default {
     },
     tooltip: function(this: any) {
       return (
-        this.field.name +
+        (this.field.name ? this.field.name : "[no name]") +
         ": " +
         (this.displayValue === protectedText
           ? "Click to reveal/hide"
           : this.field.value)
       );
+    },
+    useful: function(this:any) {
+        return this.field.type !== "checkbox" && this.displayValue.length > 0;
     }
   },
   methods: {
     toggleReveal: function(this: any) {
       this.revealed = !this.revealed;
+    },
+    copyValue: function(this: any) {
+        copyStringToClipboard(this.field.value);
     }
   }
 };

@@ -1,11 +1,11 @@
 <template>
   <div id="searchPanel">
-    <div>
+    <v-toolbar app class="py-2">
       <v-text-field
         solo
         :placeholder="$i18n('Search_label')"
         hide-details
-        class="mb-3"
+        class="my-0"
         id="searchBox"
         name="cc5704978dc0411591addc66d25c325b"
         :value="currentSearchTerm"
@@ -16,26 +16,25 @@
         @keyup.enter.stop.prevent="focusFirstResult"
         @keyup.escape.stop.prevent="handleEscape"
       ></v-text-field>
-      <!-- <input
-        type="text"
-        :placeholder="$i18n('Search_label')"
-        id="searchBox"
-        name="cc5704978dc0411591addc66d25c325b"
-        class="form-control"
-        :value="currentSearchTerm"
-        :title="$i18n('Search_tip')"
-        @input="onSearchInput"
-        @keydown="searchBoxKeyboardNavHandler"
-        autofocus
-        @keyup.arrow-down.stop.prevent="focusFirstResult"
-        @keyup.enter.stop.prevent="focusFirstResult"
-        @keyup.escape.stop.prevent="handleEscape"
-      >-->
-    </div>
+    </v-toolbar>
+
+    <!-- TODO: list all matched logins here and hook up the text box to filter them too. Also must filter 
+    search results to exclude those that are listed here so we avoid duplicates -->
+    <Entry :show="true" :entry="entry"/>
+    <Entry :show="false" :entry="entry"/>
+    <Entry :show="true" :entry="entry"/>
+
+<v-divider v-show="deduplicatedSearchResults && deduplicatedSearchResults.length > 0"></v-divider>
+            <v-subheader
+              v-show="deduplicatedSearchResults && deduplicatedSearchResults.length > 0"
+              class="text-xs-center"
+              style="justify-content: center;"
+            >Matches from other sites</v-subheader>
+
     <!-- <div id="searchResults"> -->
     <!-- <v-list v-show="searchResults && searchResults.length > 0" id="searchResults-Container"> -->
     <Entry
-      v-for="(entry, index) of searchResults"
+      v-for="(entry, index) of deduplicatedSearchResults"
       :key="entry.uniqueID"
       :entry="entry"
       :index="index"
@@ -78,7 +77,36 @@ export default {
     this.onDBChanged();
   },
   data() {
-    return {};
+    return {
+      show: true,
+      entry: {
+        title: "Title sdfkjhsdfkljdf s dfl;kjsdhfsdfjdjhksdfh dsfdsfsdfgsdfg",
+        usernameValue: "Username.emailaddress@emailaddress.com.longish",
+        groupPath: "blahg > bread > crumb > blah > bread > crumb",
+        URL:
+          "https://jossef.github.io/material-design-icons-iconfont/?jossef.github.io/material-design-icons-iconfontjossef.github.io/material-design-icons-iconfont",
+        domain: "jossef.github.io",
+        iconURI:
+          "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAgxJREFUOI2lkk9Ik2Ecxz/P8+7Pu9xKmRlNmYIgZSpGVhiO1qFDdOgWQVAEZnQzDx2mhyAN8tIluhd08RYUhLJhQUU1KYiiS7mgckJL073b3N73fTq8S13bIel7ep4fz/f5fb+/708AMDydRIoDbBW2PSC48vg1QuvbMrkM+T9kAFfNqgKXrnGmu4l6n4tHHzPMLxogRQ0FVWTF1Pke0qMD7Kxzs5QzuXu6k8x4FOmufl6pwFbcO9vFwsoajWOz6x3vJxdo31VHbjyKfjUOYkOJRv+5awBdoQBvRw6zb7ef6O1kpVwBS0YJAfS2BHj55df6J4KRGdXTHCBxaT+hiecU8wX6PPMkzQ5nGJvlejVKN47xI1uk+9Yr0ssFJEoxPdhLaOIZZjHH5+BlpgKTXPAmqPesEGt7AMrxbhYsxPAMbTdf8H1sAAS4sKFpu5di3gTpw0YgULyxW/kWGQIEOUvn6dpBrh96x8mHRzFyJSYTKY53BJFIwYd0lpbGbRVyDcuDqZwZJ7Nh4qfiRJoXudj5CYBwg87PvIlEQP+dOVKxI+wJ+f9y7aBkSyzlDO2r4WOov4UTe4PMpZadPVg1SuixWTyapKB0LCStWgbD8mEpjXY9w2rRja0EYX+O8A4vDaNPQAonhcp+0skNVQ6hfP5zF4DYoLhQtkJsDt2uyL8C1ZuMRBGpYfvfoNT734y1s7OXU2CAAAAAAElFTkSuQmCC')",
+        fields: [
+          {
+            value: "Username.emailaddress@emailaddress.com.longish",
+            name: "username",
+            type: "text"
+          },
+          {
+            value: "secret 1",
+            name: "password",
+            type: "password"
+          },
+          {
+            value: "secret 2",
+            name: "another password",
+            type: "password"
+          }
+        ]
+      }
+    };
   },
   components: { Entry },
 
@@ -90,7 +118,10 @@ export default {
     });
   },
   computed: {
-    ...mapGetters(["currentSearchTerm", "searchResults"])
+    ...mapGetters(["currentSearchTerm", "searchResults"]),
+    deduplicatedSearchResults: function (this: any) {
+      return this.searchResults; // TODO: filter
+    }
   },
 
   methods: {

@@ -435,6 +435,10 @@
     "message": "You are logged in to $1 password databases. '$2' is active.",
     "description": "Tells the user they have more than one KeePass database open and tells them which one is active/selected"
   },
+  "multiplePasswordSourcesEnabled": {
+      "message": "$1 password sources enabled",
+      "description": "Tells the user how many password databases they have open and unlocked"
+  },
   "matchedLogin_label": {
     "message": "$1 - $2",
     "description": "<username> <seperator> <entry title>"

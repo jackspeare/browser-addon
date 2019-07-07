@@ -158,7 +158,7 @@ export default {
       }
     },
     showFullDetails(this: any) {
-      if (!this.expanded) {
+      if (!this.expanded && !this.entry.fullDetails) {
           Port.postMessage({
             findMatches: {
             uuid: this.entry.uniqueID,

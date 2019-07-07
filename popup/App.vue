@@ -20,7 +20,7 @@
                  -->
             
 
-<SearchPanel v-show="showSearchPanel"></SearchPanel>
+<SearchPanel v-show="showSearchPanel" :matchedLogins="matchedLogins"></SearchPanel>
 
           </v-flex>
         </v-layout>
@@ -83,6 +83,7 @@ import { Action } from '../common/Action';
 import { KeeLog } from '../common/Logger';
 
 export default {
+    props: ['matchedLogins'],
   computed: {
     ...mapGetters(['showGeneratePasswordLink', 'showSaveLatestLogin', 
     'showMatchedLogins','showOpenKeePassButton','connectionStatus',

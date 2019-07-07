@@ -10,6 +10,7 @@ import { Port } from "../common/port";
 import { keeLoginInfo } from "../common/kfDataModel";
 import { SyncContent } from "../store/syncContent";
 import { MutationPayload } from "vuex";
+import { SearchResult } from "../common/search";
 
 Vue.use(i18n);
 Vue.use(Vuetify);
@@ -60,7 +61,28 @@ function startup () {
                 new Vue({
                     el: "#main",
                     store,
-                    render: h => h(App)
+                    //render: h => h(App),
+                    render (h) {
+                        return h(App, {
+                          props: {
+                            matchedLogins: !m.logins ? null : m.logins.map(
+                                e => ({
+                                    fullDetails: e,
+                                    dbFileName: e.database.fileName,
+                                    iconImageData: e.iconImageData,
+                                    path: e.parentGroup.path,
+                                    relevanceScore: e.relevanceScore,
+                                    title: e.title,
+                                    uRLs: e.URLs,
+                                    uniqueID: e.uniqueID,
+                                    url: e.URLs[0],
+                                    usernameName: (e.otherFields && e.usernameIndex >= 0) ? e.otherFields[e.usernameIndex].name : "<no username>",
+                                    usernameValue: (e.otherFields && e.usernameIndex >= 0) ? e.otherFields[e.usernameIndex].value : "<no username>"
+                                } as SearchResult)
+                            )
+                          }
+                        });
+                      }
                 });
 
                 // This maybe could be moved to onMounted once all vuex state is changed before this popup is opened.
@@ -79,6 +101,17 @@ function startup () {
         if (store.state.connected && m.findMatchesResult) {
              store.dispatch("updateContextMenuResult", convertSingleLoginEntryResult(m.findMatchesResult) );
         }
+
+        // if (store.state.connected && m.findMatchesResult) {
+        //     const kfl = convertSingleLoginEntryResult(m.findMatchesResult);
+        //     const id = kfl.uniqueID;
+        //     for (const s of state.searchResults) {
+        //         if (s.uniqueID === id) {
+        //             s.fullDetails = kfl;
+        //             break;
+        //         }
+        //     }
+        // }
 
     });
 

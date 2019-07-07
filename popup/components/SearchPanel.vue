@@ -20,9 +20,17 @@
 
     <!-- TODO: list all matched logins here and hook up the text box to filter them too. Also must filter 
     search results to exclude those that are listed here so we avoid duplicates -->
-    <Entry :show="true" :entry="entry"/>
+
+    
+    <Entry
+      v-for="(entry, index) of filteredMatches"
+      :key="entry.uniqueID"
+      :entry="entry"
+      :index="index"
+    ></Entry>
+    <!-- <Entry :show="true" :entry="entry"/>
     <Entry :show="false" :entry="entry"/>
-    <Entry :show="true" :entry="entry"/>
+    <Entry :show="true" :entry="entry"/> -->
 
 <v-divider v-show="deduplicatedSearchResults && deduplicatedSearchResults.length > 0"></v-divider>
             <v-subheader
@@ -54,11 +62,12 @@ import { ButtonAction } from "../../common/Button";
 import { configManager } from "../../common/ConfigManager";
 import { AddonMessage } from "../../common/AddonMessage";
 import { Port } from "../../common/port";
-import { Search, SearchResult } from "../../common/search";
+import { Search, SearchResult, SearchOnlyMatches } from "../../common/search";
 import Entry from "./Entry.vue";
 import { mTypes } from "../../store";
 
 export default {
+  props: ['matchedLogins'],
   created(this: any) {
     this.onDBChanged = () => {
       this.search = new Search(
@@ -75,10 +84,13 @@ export default {
       );
     };
     this.onDBChanged();
+    this.searchOnlyMatches = new SearchOnlyMatches(this.matchedLogins);
+    // this.filteredMatches = this.matchedLogins;
+    this.searchOnlyMatches.execute(this.currentSearchTerm, (this as any).onSearchOnlyMatchesComplete.bind(this));
   },
   data() {
     return {
-      show: true,
+      filteredMatches: null,
       entry: {
         title: "Title sdfkjhsdfkljdf s dfl;kjsdhfsdfjdjhksdfh dsfdsfsdfgsdfg",
         usernameValue: "Username.emailaddress@emailaddress.com.longish",
@@ -120,12 +132,30 @@ export default {
   computed: {
     ...mapGetters(["currentSearchTerm", "searchResults"]),
     deduplicatedSearchResults: function (this: any) {
-      return this.searchResults; // TODO: filter
+      if (this.searchResults) {
+        if (this.matchedLogins) {
+          return this.searchResults.filter(
+            e => !this.matchedLogins.some(m => m.uniqueID === e.uniqueID));
+        } else {
+          return this.searchResults;
+        }
+      }
+      return null;
     }
   },
 
   methods: {
     ...mapActions(actionNames),
+    onSearchOnlyMatchesComplete(logins: SearchResult[]) {
+      console.log("onSearchOnlyMatchesComplete");
+      logins = logins
+        .sort(function(a, b) {
+          if (a.relevanceScore > b.relevanceScore) return -1;
+          if (a.relevanceScore < b.relevanceScore) return 1;
+          return 0;
+        });
+      (this as any).filteredMatches = logins;
+    },
     onSearchComplete(logins: SearchResult[]) {
       console.log("onSearchComplete");
       logins = logins
@@ -136,6 +166,7 @@ export default {
         })
         .map(l => Object.assign(l, { fullDetails: null }));
       (this as any).$store.dispatch("updateSearchResults", logins);
+      //(this as any).searchResults = logins;
     },
     onSearchInput(value) {
       const pm = (this as any).postMessage;
@@ -147,6 +178,10 @@ export default {
         "updateCurrentSearchTerm",
         value
       );
+      (this as any).searchOnlyMatches.execute(
+        value,
+        (this as any).onSearchOnlyMatchesComplete.bind(this)
+      );
       (this as any).search.execute(
         value,
         (this as any).onSearchComplete.bind(this),
@@ -154,6 +189,11 @@ export default {
       );
     },
     focusFirstResult() {
+      const filteredMatches = document.getElementById("filteredMatches-Container");
+      if (filteredMatches && filteredMatches.firstElementChild) {
+        (filteredMatches.firstElementChild as HTMLLIElement).focus();
+        return;
+      }
       const searchResults = document.getElementById("searchResults-Container");
       if (searchResults && searchResults.firstElementChild) {
         (searchResults.firstElementChild as HTMLLIElement).focus();

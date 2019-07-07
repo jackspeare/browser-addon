@@ -125,9 +125,13 @@ export class Kee {
                         });
                     }
 
-                    if (window.kee.tabStates.has(window.kee.foregroundTabId)
-                        && window.kee.frameIdWithMatchedLogins(window.kee.tabStates.get(window.kee.foregroundTabId).frames) >= 0) {
+                    if (window.kee.tabStates.has(window.kee.foregroundTabId)) {
+                        const frames = window.kee.tabStates.get(window.kee.foregroundTabId).frames;
+                        const matchedFrameID = window.kee.frameIdWithMatchedLogins(frames);
+                        if (matchedFrameID >= 0) {
                             loginsFound = true;
+                            connectMessage.logins = frames.get(matchedFrameID).logins;
+                        }
                     }
                     store.dispatch("updateSubmittedData", submittedData);
                     store.dispatch("updateLoginsFound", loginsFound);

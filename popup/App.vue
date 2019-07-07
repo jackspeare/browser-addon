@@ -3,7 +3,7 @@
   <v-app id="inspire" :dark="darkTheme">
     <v-content>
       <v-container fluid fill-height>
-        <v-layout row wrap justify-center align-top>
+        <v-layout row wrap justify-center align-top class="mb-3">
           <v-flex xs12>
 
 <!--               
@@ -24,6 +24,20 @@
 
           </v-flex>
         </v-layout>
+        <v-speed-dial v-show="showSaveLatestLogin || showGeneratePasswordLink" fixed bottom right direction="top" style="bottom: 55px">
+            <template v-slot:activator>
+              <v-btn color="light-blue darken-2" fab small>
+                <v-icon>add</v-icon>
+                <v-icon>close</v-icon>
+              </v-btn>
+            </template>
+            <v-btn v-show="showSaveLatestLogin" right color="light-blue lighten-3" absolute style="bottom: 80px; right: 0px" @click="saveLatestLogin">{{ $i18n('saveLatestLogin') }}
+                <v-icon class="pl-3">add_circle</v-icon>
+            </v-btn>
+            <v-btn v-show="showGeneratePasswordLink" right color="light-blue lighten-3" absolute style="bottom: 20px; right: 0px" @click="generatePassword">{{ $i18n('Menu_Button_copyNewPasswordToClipboard_label') }}
+              <v-icon class="pl-3">flash_on</v-icon>
+            </v-btn>
+          </v-speed-dial>
       </v-container>
     </v-content>
 

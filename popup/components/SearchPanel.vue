@@ -1,11 +1,11 @@
 <template>
   <div id="searchPanel">
-    <v-toolbar app class="py-2">
+    <v-toolbar app class="py-1">
       <v-text-field
         solo
         :placeholder="$i18n('Search_label')"
         hide-details
-        class="my-0"
+        class="search my-0"
         id="searchBox"
         name="cc5704978dc0411591addc66d25c325b"
         :value="currentSearchTerm"
@@ -23,10 +23,12 @@
 
     
     <Entry
-      v-for="(entry, index) of filteredMatches"
-      :key="entry.uniqueID"
-      :entry="entry"
+      v-for="(match, index) of filteredMatches"
+      :key="match.entry.uniqueID"
+      :entry="match.entry"
       :index="index"
+      :frameId="frameId"
+      :loginIndex="match.originalIndex"
     ></Entry>
     <!-- <Entry :show="true" :entry="entry"/>
     <Entry :show="false" :entry="entry"/>
@@ -67,7 +69,7 @@ import Entry from "./Entry.vue";
 import { mTypes } from "../../store";
 
 export default {
-  props: ['matchedLogins'],
+  props: ['matchedLogins', 'frameId'],
   created(this: any) {
     this.onDBChanged = () => {
       this.search = new Search(
@@ -84,6 +86,11 @@ export default {
       );
     };
     this.onDBChanged();
+    if (this.matchedLogins) {
+      for (let i=0; i < this.matchedLogins.length; i++) {
+        this.uidMap.set(this.matchedLogins[i].uniqueID, i);
+      }
+    }
     this.searchOnlyMatches = new SearchOnlyMatches(this.matchedLogins);
     // this.filteredMatches = this.matchedLogins;
     this.searchOnlyMatches.execute(this.currentSearchTerm, (this as any).onSearchOnlyMatchesComplete.bind(this));
@@ -91,6 +98,7 @@ export default {
   data() {
     return {
       filteredMatches: null,
+      uidMap: new Map<string, number>(),
       entry: {
         title: "Title sdfkjhsdfkljdf s dfl;kjsdhfsdfjdjhksdfh dsfdsfsdfgsdfg",
         usernameValue: "Username.emailaddress@emailaddress.com.longish",
@@ -146,7 +154,7 @@ export default {
 
   methods: {
     ...mapActions(actionNames),
-    onSearchOnlyMatchesComplete(logins: SearchResult[]) {
+    onSearchOnlyMatchesComplete(this: any, logins: SearchResult[]) {
       console.log("onSearchOnlyMatchesComplete");
       logins = logins
         .sort(function(a, b) {
@@ -154,7 +162,10 @@ export default {
           if (a.relevanceScore < b.relevanceScore) return 1;
           return 0;
         });
-      (this as any).filteredMatches = logins;
+      this.filteredMatches = logins.map(m => ({
+        entry: m,
+        originalIndex: this.uidMap.get(m.uniqueID)
+      }));
     },
     onSearchComplete(logins: SearchResult[]) {
       console.log("onSearchComplete");
@@ -215,3 +226,9 @@ export default {
   mixins: [Port.mixin]
 };
 </script>
+
+<style>
+.search.v-text-field.v-text-field--solo .v-input__control {
+  min-height: 36px !important;
+}
+</style>

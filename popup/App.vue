@@ -3,25 +3,12 @@
   <v-app id="inspire" :dark="darkTheme">
     <v-content>
       <v-container fluid fill-height>
-        <v-layout row wrap justify-center align-top class="mb-3">
+        <v-layout row wrap justify-center align-top class="mb-3 mt-4">
           <v-flex xs12>
-
-<!--               
-                <div v-if="showNotifications" id="notifications">
-                    <Notification v-for="n of notifications" :notification="n" :key="n.id"></Notification>
-                </div>
-                
-                <div class="list-group" id="menu-items">
-                    <a v-show="showMatchedLogins" href="#" id="showMatchedLogins" class="list-group-item" @click="showMatchedLoginsPanel">{{ $i18n('matched_logins_label') }}</a>
-                    <a v-show="showSaveLatestLogin" href="#" id="saveLatestLogin" class="list-group-item" @click="saveLatestLogin">{{ $i18n('saveLatestLogin') }}</a>
-                    <a v-show="showGeneratePasswordLink" href="#" id="generatePasswordLink" class="list-group-item" @click="generatePassword">{{ $i18n('Menu_Button_copyNewPasswordToClipboard_label') }}</a>
-                </div>
-
-                 -->
-            
-
-<SearchPanel v-show="showSearchPanel" :matchedLogins="matchedLogins"></SearchPanel>
-
+            <div v-if="showNotifications" id="notifications">
+                <Notification v-for="n of notifications" :notification="n" :key="n.id"></Notification>
+            </div>
+            <SearchPanel v-show="showSearchPanel" :matchedLogins="matchedLogins" :frameId="frameId"></SearchPanel>
           </v-flex>
         </v-layout>
         <v-speed-dial v-show="showSaveLatestLogin || showGeneratePasswordLink" fixed bottom right direction="top" style="bottom: 55px">
@@ -43,7 +30,7 @@
 
     <v-footer app height="auto">
       <v-tooltip top>
-        <v-btn :aria-label="$i18n('Menu_Button_open_kee_vault_label')" slot="activator" class="mx-0" icon id="password-open-kee-vault" @click="openKeeVault">
+        <v-btn :aria-label="$i18n('Menu_Button_open_kee_vault_label')" slot="activator" class="mx-2" icon id="password-open-kee-vault" @click="openKeeVault">
             <img width="24px" height="24px" src="../common/images/48-kee-vault.png" />
         </v-btn>
         <span>{{ $i18n('Menu_Button_open_kee_vault_label') }}</span>
@@ -68,18 +55,32 @@
 
       <v-spacer></v-spacer>
 
-<v-tooltip top>
-        <v-btn :aria-label="$i18n('Menu_Button_options_label')" slot="activator" class="mx-1" icon id="optionsLink" @click="showOptions">
-            <v-icon size="24px">settings</v-icon>
-        </v-btn>
-        <span>{{ $i18n('Menu_Button_options_label') }}</span>
-        </v-tooltip>
-        <v-tooltip top>
-        <v-btn :aria-label="$i18n('Help_Centre_Button_label')" slot="activator" class="mx-0" icon id="helpLink" @click="showHelp">
-            <v-icon size="24px">help</v-icon>
-        </v-btn>
-        <span>{{ $i18n('Help_Centre_Button_label') }}</span>
-        </v-tooltip>
+        <v-menu top offset-y small>
+            <template v-slot:activator="{ on }">
+                <v-btn
+                icon
+                small
+                v-on="on"
+                >
+                <v-icon>menu</v-icon>
+                </v-btn>
+            </template>
+
+            <v-list>
+                <!-- <v-list-tile @click="">
+                <v-list-tile-title class="mr-3 text-xs-right body-2">Force form field detection</v-list-tile-title>
+                <v-icon size="20px">refresh</v-icon>
+                </v-list-tile> -->
+                <v-list-tile @click="showHelp">
+                <v-list-tile-title right class="mr-3 text-xs-right body-2">{{ $i18n('Help_Centre_Button_label') }}</v-list-tile-title>
+                <v-icon size="20px">help</v-icon>
+                </v-list-tile>
+                <v-list-tile @click="showOptions">
+                <v-list-tile-title class="mr-3 text-xs-right body-2">{{ $i18n('Menu_Button_options_label') }}</v-list-tile-title>
+                <v-icon size="20px">settings</v-icon>
+                </v-list-tile>
+            </v-list>
+        </v-menu>
     </v-footer>
   </v-app>
 </template>
@@ -97,7 +98,7 @@ import { Action } from '../common/Action';
 import { KeeLog } from '../common/Logger';
 
 export default {
-    props: ['matchedLogins'],
+    props: ['matchedLogins', 'frameId'],
   computed: {
     ...mapGetters(['showGeneratePasswordLink', 'showSaveLatestLogin', 
     'showMatchedLogins','showOpenKeePassButton','connectionStatus',

@@ -131,6 +131,8 @@ export class Kee {
                         if (matchedFrameID >= 0) {
                             loginsFound = true;
                             connectMessage.logins = frames.get(matchedFrameID).logins;
+                            connectMessage.frameId = matchedFrameID;
+                            connectMessage.tabId = window.kee.foregroundTabId;
                         }
                     }
                     store.dispatch("updateSubmittedData", submittedData);

@@ -1,15 +1,39 @@
 <template>
-  <div>
-    <div class="flex1">
-      <div class="Kee-message" v-for="(msg, index) of notification.messages" :key="index">{{msg}}</div>
-    </div>
-    <div class="kee-button-actions"><button v-for="(but, index) of notification.buttons" 
-    :key="index" 
-    :title="but.tooltip" 
-    :id="but.id"
-    @click="dispatchActionResponse(notification.id, but.action, but.values)">{{but.label}}</button></div>
-    <span class="close-button glyphicon glyphicon-remove" :title="$i18n('close')" @click="closeNotification(notification.id)"></span>
-  </div>
+  <v-card color="yellow lighten-3">
+          <div style="float: right">
+              <v-btn
+                flat
+                class="ml-3 mr-2 px-2"
+                @click="closeNotification(notification.id)"
+              >{{$i18n('close')}}
+                  <v-icon>close</v-icon></v-btn>          
+        </div>
+    
+    <v-card-text>
+      <p v-for="(msg, index) of notification.messages" :key="index">{{msg}}</p>
+    </v-card-text>
+    <v-card-actions>
+      <v-layout row justify-center align-end class="mb-1 mt-1">
+          <v-flex>
+                <v-layout row wrap justify-left align-end class="ml-2">
+                    <v-tooltip top
+                        v-for="(but, index) of notification.buttons"
+                        :key="index"
+                        :disabled="!but.tooltip" >
+                      <v-btn
+                        :id="but.id"
+                        class="mr-3 my-2"
+                        color="primary"
+                        slot="activator"
+                        @click="dispatchActionResponse(notification.id, but.action, but.values)"
+                      >{{but.label}}</v-btn>
+                      <span>{{but.tooltip}}</span>
+                    </v-tooltip>
+                </v-layout>
+          </v-flex>
+      </v-layout>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script lang="ts">

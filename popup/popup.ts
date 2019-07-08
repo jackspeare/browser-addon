@@ -79,7 +79,8 @@ function startup () {
                                     usernameName: (e.otherFields && e.usernameIndex >= 0) ? e.otherFields[e.usernameIndex].name : "<no username>",
                                     usernameValue: (e.otherFields && e.usernameIndex >= 0) ? e.otherFields[e.usernameIndex].value : "<no username>"
                                 } as SearchResult)
-                            )
+                            ),
+                            frameId: m.frameId
                           }
                         });
                       }

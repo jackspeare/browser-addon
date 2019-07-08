@@ -14,7 +14,7 @@
       @keyup.arrow-right.stop.prevent="showFullDetails"
       @keyup.arrow-left.stop.prevent="hideFullDetails"
       @keyup.escape.stop.prevent="exitList"
-      @keyup.enter.self.stop.prevent="loadInSameTab"
+      @keyup.enter.self.stop.prevent="primaryClickAction"
       @keyup.enter.ctrl.self.stop.prevent="loadInNewTab"
     >
       <v-layout
@@ -22,10 +22,10 @@
         justify-center
         align-center
         :style="`${hover ? 'cursor: pointer' : ''}`"
-        @click.left.exact="loadInSameTab"
+        @click.left.exact="primaryClickAction"
         @click.middle.exact="loadInNewTab"
         @click.left.ctrl="loadInNewTab"
-        @click.middle.ctrl="loadInSameTab"
+        @click.middle.ctrl="primaryClickAction"
         @click.right.stop.prevent="showFullDetails"
       >
         <v-flex class="text-truncate">
@@ -92,9 +92,10 @@ import { mapActions } from 'vuex';
 import { names as actionNames } from '../../store/action-names';
 import { keeLoginInfo } from '../../common/kfDataModel';
 import { utils } from '../../common/utils';
+import { Action } from '../../common/Action';
 
 export default {
-  props: ["entry",'index'], //TODO: make index optional for when we're not part of a list
+  props: ["entry",'index',"loginIndex","frameId"], //TODO: make index optional for when we're not part of a list
 
   computed: {
     titleStyle: function(this: any) {
@@ -174,10 +175,11 @@ export default {
     editEntry(this: any) {
       Port.postMessage({
         loginEditor: {
-          uniqueID: this.entry.uniqueID,
-          DBfilename: this.entry.dbFileName
-        }
-      } as AddonMessage);
+            uniqueID: this.entry.uniqueID,
+            DBfilename: this.entry.dbFileName
+            }
+        } as AddonMessage);
+        window.close();
     },
     focusin: function(this: any, e) {
       if (!(this.$refs.card as any).$el.contains(e.relatedTarget)) {
@@ -189,11 +191,27 @@ export default {
         this.focussed = false;
       }
     },
+    primaryClickAction(this: any) {
+        if (this.loginIndex !== undefined) {
+            // We are expected to fill an already discovered entry
+            this.manualFill();
+        } else {
+            this.loadInSameTab();
+        }
+    },
     loadInSameTab(this: any) {
         browser.tabs.update({url: this.entry.url});
+        window.close();
     },
     loadInNewTab(this: any) {
         browser.tabs.create({url: this.entry.url});
+    },
+    manualFill(this: any) {
+        Port.postMessage({
+            action: Action.ManualFill,
+            selectedLoginIndex: this.loginIndex,
+            frameId: this.frameId });
+        window.close();
     },
     nextInList (this: any, event: Event) {
         const target = event.target as HTMLLIElement;

@@ -91,7 +91,7 @@ import { Port } from "../../common/port";
 import { mapActions } from 'vuex';
 import { names as actionNames } from '../../store/action-names';
 import { keeLoginInfo } from '../../common/kfDataModel';
-import { utils } from '../../common/utils';
+import { KeeURL } from '../../common/KeeURL';
 import { Action } from '../../common/Action';
 
 export default {
@@ -121,17 +121,11 @@ export default {
     entryDomain: function(this: any) {
         let urlStr = this.entry.url;
         if (!urlStr || urlStr.length < 4) return "<unknown>";
-        if (!urlStr.startsWith("https://") && !urlStr.startsWith("http://") && !urlStr.startsWith("file://"))
-        {
-            urlStr = "https://" + urlStr;
+        const kurl = KeeURL.fromString(urlStr);
+        if (!kurl) {
+            return "<error>";
         }
-        try {
-        const url = new URL(urlStr);
-        return utils.psl.getDomain(url.host);
-        } catch (e) {
-            console.warn("Error processing URL: " + e);
-            return "<error>"
-        }
+        return kurl.domainWithPort || kurl.url.host;
     },
     entryPath: function(this: any) {
         if (!this.entryPathIsLong) {

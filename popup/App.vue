@@ -1,17 +1,24 @@
 
 <template>
-  <v-app id="inspire" :dark="darkTheme">
-    <v-content>
-      <v-container fluid fill-height>
-        <v-layout row wrap justify-center align-top class="mb-3 mt-4">
-          <v-flex xs12>
+  <v-app id="inspire" :dark="darkTheme" style="overflow-y: hidden">
+      <v-toolbar app fixed style="max-width: 400px;">
+          <SearchInput v-show="showSearchPanel"/>
+      </v-toolbar>
+    <v-content style="overflow-y: hidden">
+      <v-container fluid fill-height style="padding: 0px; overflow-y: hidden">
+        <v-layout row wrap justify-center align-top style="overflow-y: scroll;padding-right: 24px;padding-left: 32px;">
+          <v-flex xs12 class="pb-4">
             <div v-if="showNotifications" id="notifications">
                 <Notification v-for="n of notifications" :notification="n" :key="n.id"></Notification>
             </div>
-            <SearchPanel v-show="showSearchPanel" :matchedLogins="matchedLogins" :frameId="frameId"></SearchPanel>
+            <SearchResults v-show="showSearchPanel" :matchedLogins="matchedLogins" :frameId="frameId"></SearchResults>
           </v-flex>
         </v-layout>
-        <v-speed-dial v-show="showSaveLatestLogin || showGeneratePasswordLink" fixed bottom right direction="top" style="bottom: 55px">
+        
+      </v-container>
+    </v-content>
+
+<v-speed-dial v-show="showSaveLatestLogin || showGeneratePasswordLink" absolute bottom right direction="top" style="bottom: 75px; right: 24px">
             <template v-slot:activator>
               <v-btn color="light-blue darken-2" fab small>
                 <v-icon>add</v-icon>
@@ -25,10 +32,8 @@
               <v-icon class="pl-3">flash_on</v-icon>
             </v-btn>
           </v-speed-dial>
-      </v-container>
-    </v-content>
 
-    <v-footer app height="auto">
+    <v-footer height="auto">
       <v-tooltip top>
         <v-btn :aria-label="$i18n('Menu_Button_open_kee_vault_label')" slot="activator" class="mx-2" icon id="password-open-kee-vault" @click="openKeeVault">
             <img width="24px" height="24px" src="../common/images/48-kee-vault.png" />
@@ -92,7 +97,8 @@ import { names as actionNames } from '../store/action-names';
 import { SessionType } from '../common/kfDataModel';
 import { KeeState } from '../store/KeeState';
 import Notification from "./components/Notification.vue";
-import SearchPanel from "./components/SearchPanel.vue";
+import SearchInput from "./components/SearchInput.vue";
+import SearchResults from "./components/SearchResults.vue";
 import { Port } from '../common/port';
 import { Action } from '../common/Action';
 import { KeeLog } from '../common/Logger';
@@ -163,7 +169,8 @@ export default {
 
   components: {
       Notification,
-      SearchPanel
+      SearchResults,
+      SearchInput
   },
 
   mounted: function () {
@@ -185,3 +192,34 @@ export default {
   mixins: [Port.mixin]
 };
 </script>
+
+<style>
+
+html {
+  overflow-y: hidden;
+}
+
+body {
+    max-height: 570px;
+}
+
+.application--wrap {
+  /* flex: 1 1 auto; */
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* min-height: 100vh; */
+  display: grid;
+  min-height: 570px;
+  max-height: 570px;
+  height: 570px;
+  grid-template-rows: 1fr auto;
+}
+
+.v-content {
+  /* flex: 1 0 auto; */
+  flex: 0 1 auto;
+  max-height: 100%;
+  overflow-y: hidden;
+}
+
+</style>

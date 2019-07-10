@@ -1,11 +1,13 @@
 <template>
-  <div id="searchPanel">
-    <v-toolbar app class="py-1">
+  <div id="searchPanel" style="padding-top: 0px">
+      <v-layout column justify-start align-top style="height: inherit;max-height: inherit;">
+          <v-flex xs12 class="pb-4" style="flex-shrink: 1">
       <v-text-field
         solo
         :placeholder="$i18n('Search_label')"
         hide-details
         class="search my-0"
+        style=""
         id="searchBox"
         name="cc5704978dc0411591addc66d25c325b"
         :value="currentSearchTerm"
@@ -16,7 +18,11 @@
         @keyup.enter.stop.prevent="focusFirstResult"
         @keyup.escape.stop.prevent="handleEscape"
       ></v-text-field>
-    </v-toolbar>
+          </v-flex>
+          
+          <v-flex xs12 class="pb-4 mb-4" style="max-height: calc(100% - 60px);overflow-y: auto; flex-grow: 1; flex-shrink: 0;">
+            <div class="mb-4 pb-4">
+<v-divider v-show="filteredMatches && filteredMatches.length > 0"></v-divider>
 
     <!-- TODO: list all matched logins here and hook up the text box to filter them too. Also must filter 
     search results to exclude those that are listed here so we avoid duplicates -->
@@ -34,7 +40,7 @@
     <Entry :show="false" :entry="entry"/>
     <Entry :show="true" :entry="entry"/> -->
 
-<v-divider v-show="deduplicatedSearchResults && deduplicatedSearchResults.length > 0"></v-divider>
+<v-divider v-show="deduplicatedSearchResults && deduplicatedSearchResults.length > 0" class="mt-2"></v-divider>
             <v-subheader
               v-show="deduplicatedSearchResults && deduplicatedSearchResults.length > 0"
               class="text-xs-center"
@@ -50,7 +56,9 @@
       :index="index"
     ></Entry>
     <!-- </v-list> -->
-    <!-- </div> -->
+    </div>
+          </v-flex>
+      </v-layout>
   </div>
 </template>
 
@@ -231,4 +239,21 @@ export default {
 .search.v-text-field.v-text-field--solo .v-input__control {
   min-height: 36px !important;
 }
+/* 
+.theme--light.application #searchBoxContainer {
+    background: #fafafa;
+}
+
+.theme--dark.application #searchBoxContainer {
+  background: #303030;
+}
+
+.scrollable-contents {
+  overflow-y: auto;
+}
+
+#searchPanel {
+  max-height: inherit;
+  height: inherit;
+} */
 </style>

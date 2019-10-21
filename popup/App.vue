@@ -8,7 +8,7 @@
       <v-container fluid fill-height style="padding: 0px; overflow-y: hidden">
         <v-layout row wrap justify-center align-top style="overflow-y: scroll;padding-right: 24px;padding-left: 32px;">
           <v-flex xs12 class="pb-4">
-            <div v-if="showNotifications" id="notifications">
+            <div v-if="showNotifications" id="notifications" class="pt-4">
                 <Notification v-for="n of notifications" :notification="n" :key="n.id"></Notification>
             </div>
             <SearchResults v-show="showSearchPanel" :matchedLogins="matchedLogins" :frameId="frameId"></SearchResults>

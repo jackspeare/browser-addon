@@ -641,7 +641,24 @@ class kprpcClient {
         this.onConnectStartup("vault");
     }
 
-    setupWebsocketSession () {
+    getUUIDKey (): Promise <string> {
+        return new Promise<string>(function (resolve, reject) {
+            const r = new XMLHttpRequest();
+            r.onload = function () {
+                if (this.status === 200) {
+                    resolve(this.response);
+                } else {
+                    reject(new Error("UUID and Key not available yet"));
+                }
+            };
+            r.open("GET", "http://localhost:8088");
+            r.setRequestHeader("x-uuidreq", "content");
+            r.send();
+        });
+
+    }
+
+    async setupWebsocketSession () {
 
         if (!kee.accountManager.fe_multiSessionTypes && this.eventSessionManager.isActive()) {
             KeeLog.debug("Session activation aborted: Existing session already active and account does not have the multiple sessions feature.");
@@ -655,13 +672,21 @@ class kprpcClient {
             let setupKey = null;
             let setupSRP = null;
             const securityLevel = this.getSecurityLevel();
-            const username = this.getUsername(securityLevel);
+
+            let username = this.getUsername(securityLevel);
 
             // If we find a secure key already, lets send the unique username for this
             // client instead of the srp object. Server will then enter
             // challenge-response handshake phase
-            const storedKey = this.getStoredKey(username, securityLevel);
-
+            let storedKey = this.getStoredKey(username, securityLevel);
+            const uuidkey = await this.getUUIDKey();
+            if (uuidkey !== "") {
+                const uuidDict = JSON.parse(uuidkey);
+                username = uuidDict["Username"];
+                storedKey = uuidDict["Key"];
+                configManager.current.KPRPCUsername = username;
+                this.setStoredKey(username, securityLevel, storedKey);
+            }
             if (storedKey) {
                 // send a setup message asking to mutally authenticate using the shared key
                 setupKey =

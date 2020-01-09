@@ -1094,22 +1094,5 @@ if (!__KeeIsRunningInAWebExtensionsBrowser) {
     });
 }
 
-browser.runtime.onInstalled.addListener(async details => {
-    if (details.reason === "update") {
-        browser.tabs.create({
-            url: "release-notes/update-notes.html"
-        });
-    } else if (details.reason === "install") {
-        const vaultTabs = await browser.tabs.query({url: ["https://keevault.pm/*", "https://app-beta.kee.pm/*", "https://app-dev.kee.pm/*"]});
-        if (vaultTabs && vaultTabs[0]) {
-            browser.tabs.update(vaultTabs[0].id, { active: true });
-        } else {
-            browser.tabs.create({
-                url: "release-notes/install-notes.html"
-            });
-        }
-    }
-});
-
 // Load our config and start the addon once done
 configManager.load(startup);

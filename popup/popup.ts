@@ -182,24 +182,7 @@ function startup () {
         myPort.postMessage({ action: Action.ShowMatchedLoginsPanel });
         window.close();
     });
-    document.getElementById("helpLink").addEventListener("click", () => {
-        browser.tabs.create({ url: "https://www.kee.pm/help" });
-        window.close();
-    });
 
-    document.getElementById("password-open-kee-vault").addEventListener("click", async () => {
-        KeeLog.debug("open Kee Vault requested");
-        const vaultTabs = await browser.tabs.query({url: ["https://keevault.pm/*", "https://app-beta.kee.pm/*", "https://app-dev.kee.pm/*"]});
-        if (vaultTabs && vaultTabs[0]) {
-            browser.tabs.update(vaultTabs[0].id, { active: true });
-        } else {
-            browser.tabs.create({
-                url: "https://keevault.pm/",
-                active: true
-            });
-        }
-        window.close();
-    });
     document.getElementById("password-open-keepass").addEventListener("click", () => {
         KeeLog.debug("open KeePass requested");
         if (appState.connectedWebsocket) {
